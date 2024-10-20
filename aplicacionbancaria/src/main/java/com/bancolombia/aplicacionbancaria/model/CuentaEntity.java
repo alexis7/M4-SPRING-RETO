@@ -3,11 +3,15 @@ package com.bancolombia.aplicacionbancaria.model;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "tipoCuenta")
 @Table(name = "cuenta")
-public class CuentaEntity {
+public abstract class CuentaEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,16 +21,23 @@ public class CuentaEntity {
 
     private String titular;
 
-    public CuentaEntity(BigDecimal saldo, String titular) {
+    private String tipo;
+
+    private Long numeroCuenta;
+
+    @OneToMany(mappedBy = "cuenta")
+    private List<TransaccionEntity> transacciones;
+
+
+    public CuentaEntity(BigDecimal saldo, String titular, String tipo) {
         this.saldo = saldo;
         this.titular = titular;
+        this.tipo = tipo;
     }
 
     public CuentaEntity() {
     }
 
-    @OneToMany(mappedBy = "cuenta")
-    private List<TransaccionEntity> transacciones;
 
     public Long getId() {
         return id;
@@ -53,8 +64,39 @@ public class CuentaEntity {
     }
 
     public List<TransaccionEntity> getTransacciones() {
-        return transacciones;
+        int totalElementos = transacciones.size();
+        transacciones.sort(Comparator.comparing(TransaccionEntity::getFecha));
+        int inicio = Math.max(totalElementos - 5, 0);
+        List<TransaccionEntity> historialList = new ArrayList<>();
+        for (int i = inicio; i < totalElementos; i++) {
+            historialList.add(transacciones.get(i));
+        }
+        return historialList;
     }
 
+    public String getTipo() {
+        return tipo;
+    }
 
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public static class CuentaPremiumEntity {
+    }
+
+    public static class CuentaBasicaEntity {
+    }
+
+    public abstract void depositoDesdeCajeroAutomatico(BigDecimal cantidad);
+
+    public abstract void depositoDesdeSucursal(BigDecimal cantidad);
+
+    public abstract void depositoDesdeOtraCuenta(BigDecimal cantidad);
+
+    public abstract void compraEnEstablecimientoFisico(BigDecimal cantidad);
+
+    public abstract void compraEnPaginaWeb(BigDecimal cantidad);
+
+    public abstract void retiroEnCajero(BigDecimal cantidad);
 }

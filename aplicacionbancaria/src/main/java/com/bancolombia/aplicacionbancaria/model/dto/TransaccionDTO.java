@@ -14,8 +14,8 @@ public class TransaccionDTO {
     @NotNull(message = "La cuenta no puede ser nula")
     private Long cuenta;
 
-    @NotNull(message = "Debe enviar el tipo de transaccion, deposito o retiro")
-    @NotEmpty(message = "El tipo de transaccion no puede ser vacio, debe ser deposito o retiro")
+    @NotNull(message = "Debe enviar el tipo de transaccion")
+    @NotEmpty(message = "El tipo de transaccion no puede ser vacio")
     private String tipoTransaccion;
 
     @NotNull(message = "El monto no puede ser nulo")

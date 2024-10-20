@@ -58,4 +58,9 @@ public class TransaccionEntity {
     public CuentaEntity getCuenta() {
         return cuenta;
     }
+
+    public String toString() {
+        return "Transaccion {id=" + id + ", tipo=" + tipoTransaccion + ", monto='" + monto + "', fecha='" + fecha + "'}";
+    }
+
 }
